@@ -2,7 +2,7 @@
 	"name": "clevis/skeleton-core",
 	"description": "Core functionality of Skeleton21",
 	"homepage": "http://clevis.cz",
-	"license": ["BSD-3-Clause", "GPL-2.0", "GPL-3.0"],
+	"license": "BSD-3-Clause",
 	"authors": [
 		{
 			"name": "Clevis s.r.o.",
