@@ -2,29 +2,30 @@
 
 namespace Clevis\Skeleton;
 
-use Nette;
+use Nette\Application\UI\Control;
+use Nette\Templating\ITemplate;
+use Nette\NotImplementedException;
 
 
 /**
  * Base control for all application controls
  */
-abstract class BaseControl extends Nette\Application\UI\Control
+abstract class BaseControl extends Control
 {
 
 	/**
-	 * Creates configured template.
+	 * Creates configured template
 	 *
-	 * @author Jan Tvrdík
-	 * @return Nette\Templating\ITemplate
+	 * @return ITemplate
 	 */
 	protected function createTemplate($class = NULL)
 	{
 		if ($class !== NULL)
 		{
-			throw new \NotImplementedException('Specifying template class is not yet implemented.');
+			throw new NotImplementedException('Specifying template class is not yet implemented.');
 		}
 
-		return $this->getPresenter()->getService('templateFactory')->createTemplate(NULL, $this);
+		return $this->getPresenter()->getTemplateFactory()->createTemplate(NULL, $this);
 	}
 
 }
