@@ -67,7 +67,7 @@ class PresenterFactory extends Nette\Application\PresenterFactory
 			}
 		}
 
-		return $this->presenters[$presenter];
+		return isset($this->presenters[$presenter]) ? $this->presenters[$presenter] : NULL;
 	}
 
 	/**
