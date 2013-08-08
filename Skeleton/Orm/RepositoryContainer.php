@@ -21,23 +21,29 @@ class RepositoryContainer extends Orm\RepositoryContainer
 	/**
 	 * Class constuctor – automatically registers repositories aliases
 	 *
-	 * @author Jan Tvrdík
-	 * @param  Orm\IServiceContainerFactory|Orm\IServiceContainer|NULL
+	 * @param Orm\IServiceContainerFactory|Orm\IServiceContainer|NULL
+	 * @param array ($alias => $className)
 	 */
-	public function __construct($containerFactory = NULL)
+	public function __construct($containerFactory = NULL, $repositories = array())
 	{
 		parent::__construct($containerFactory);
+
+		foreach ($repositories as $alias => $repositoryClass)
+		{
+			$this->register($alias, $repositoryClass);
+		}
 
 		$annotations = Nette\Reflection\ClassType::from($this)->getAnnotations();
 		if (isset($annotations['property-read']))
 		{
-			$class = get_called_class();
-			$namespace = substr($class, 0, strrpos($class, '\\'));
+			$c = get_called_class();
+			$namespace = substr($c, 0, strrpos($c, '\\'));
 			foreach ($annotations['property-read'] as $value)
 			{
-				if (preg_match('#^(\w+Repository)\s+\$(\w+)$#', $value, $m))
+				if (preg_match('#^([\\\w]+Repository)\s+\$(\w+)$#', $value, $m) && !$this->isRepository($m[2]))
 				{
-					$this->register($m[2], $namespace . '\\' . $m[1]);
+					$class = strpos($m[1], '\\') === FALSE ? $namespace . '\\' . $m[1] : $m[1];
+					$this->register($m[2], $class);
 				}
 			}
 		}
