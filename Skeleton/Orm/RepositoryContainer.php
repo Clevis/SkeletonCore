@@ -19,7 +19,7 @@ class RepositoryContainer extends Orm\RepositoryContainer
 {
 
 	/**
-	 * Class constuctor – automatically registers repositories aliases
+	 * Class constuctor – automatically registers repository aliases
 	 *
 	 * @param Orm\IServiceContainerFactory|Orm\IServiceContainer|NULL
 	 * @param array ($alias => $className)
@@ -28,11 +28,20 @@ class RepositoryContainer extends Orm\RepositoryContainer
 	{
 		parent::__construct($containerFactory);
 
+		// registers repositories from config
 		foreach ($repositories as $alias => $repositoryClass)
 		{
 			$this->register($alias, $repositoryClass);
 		}
 
+		$this->registerAnnotations();
+	}
+
+	/**
+	 * Registers repositories from annotations
+	 */
+	private function registerAnnotations()
+	{
 		$annotations = Nette\Reflection\ClassType::from($this)->getAnnotations();
 		if (isset($annotations['property-read']))
 		{
