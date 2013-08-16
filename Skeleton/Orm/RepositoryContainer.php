@@ -12,8 +12,6 @@ use Orm;
  * Cares about repository initialization.
  * It is the entry point into model from other parts of application.
  * Stores container of services which other objects may need.
- *
- * @author Jan Tvrdík
  */
 class RepositoryContainer extends Orm\RepositoryContainer
 {
@@ -28,13 +26,16 @@ class RepositoryContainer extends Orm\RepositoryContainer
 	{
 		parent::__construct($containerFactory);
 
+		$this->registerAnnotations();
+
 		// registers repositories from config
 		foreach ($repositories as $alias => $repositoryClass)
 		{
-			$this->register($alias, $repositoryClass);
+			if (!$this->isRepository($alias))
+			{
+				$this->register($alias, $repositoryClass);
+			}
 		}
-
-		$this->registerAnnotations();
 	}
 
 	/**
@@ -49,7 +50,7 @@ class RepositoryContainer extends Orm\RepositoryContainer
 			$namespace = substr($c, 0, strrpos($c, '\\'));
 			foreach ($annotations['property-read'] as $value)
 			{
-				if (preg_match('#^([\\\w]+Repository)\s+\$(\w+)$#', $value, $m) && !$this->isRepository($m[2]))
+				if (preg_match('#^([\\\\\\w]+Repository)\\s+\\$(\\w+)$#', $value, $m))
 				{
 					$class = strpos($m[1], '\\') === FALSE ? $namespace . '\\' . $m[1] : $m[1];
 					$this->register($m[2], $class);
