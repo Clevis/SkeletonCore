@@ -2,8 +2,9 @@
 
 namespace Clevis\Skeleton\Orm;
 
-use Nette;
 use Orm;
+use Nette;
+use Nette\Reflection;
 
 
 /**
@@ -56,6 +57,45 @@ class RepositoryContainer extends Orm\RepositoryContainer
 					$this->register($m[2], $class);
 				}
 			}
+		}
+	}
+
+	/**
+	 * Black magic. Work-arround pro nefunkční RepositoryContainer::clean()
+	 * Vymaže změny ve všech repozitářích (zapomene nové, změněné a načtené entity)
+	 */
+	public function purge()
+	{
+		$ref = new Reflection\ClassType('Orm\\RepositoryContainer');
+		$ref = $ref->getProperty('repositories');
+		$ref->setAccessible(TRUE);
+
+		$repositories = $ref->getValue($this);
+
+		foreach ($repositories as $repository)
+		{
+			$this->purgeRepository($repository);
+		}
+	}
+
+	/**
+	 * Black magic. Work-arround pro nefunkční Repository::clean()
+	 * Vymaže změny v repozitáři (zapomene nové, změněné a načtené entity)
+	 *
+	 * @param Orm\Repository
+	 */
+	public function purgeRepository(Orm\Repository $repository)
+	{
+		$ref = new Reflection\ClassType('Orm\\IdentityMap');
+		$ref = $ref->getProperty('entities');
+		$ref->setAccessible(TRUE);
+
+		$map = $repository->getIdentityMap();
+		$ref->setValue($map, array());
+
+		foreach ($map->getAllNew() as $entity)
+		{
+			$map->detach($entity);
 		}
 	}
 
