@@ -5,6 +5,9 @@ namespace Clevis\Skeleton\Orm;
 use Orm;
 use Nette;
 use Nette\Reflection;
+use Orm\Repository;
+use Orm\IRepository;
+use Orm\RepositoryNotFoundException;
 
 
 /**
@@ -16,6 +19,9 @@ use Nette\Reflection;
  */
 class RepositoryContainer extends Orm\RepositoryContainer
 {
+
+	/** @var array */
+	private $aliases = array();
 
 	/**
 	 * Class constuctor – automatically registers repository aliases
@@ -35,6 +41,7 @@ class RepositoryContainer extends Orm\RepositoryContainer
 			if (!$this->isRepository($alias))
 			{
 				$this->register($alias, $repositoryClass);
+				$this->aliases[$alias] = $repositoryClass;
 			}
 		}
 	}
@@ -55,9 +62,44 @@ class RepositoryContainer extends Orm\RepositoryContainer
 				{
 					$class = strpos($m[1], '\\') === FALSE ? $namespace . '\\' . $m[1] : $m[1];
 					$this->register($m[2], $class);
+					$this->aliases[$m[2]] = $class;
 				}
 			}
 		}
+	}
+
+	/**
+	 * Vrací instanci repository.
+	 * Přednostně instancuje třídy vyjmenované v aliasech, přičemž bere v potaz dědičnost.
+	 *
+	 * @param string - repositoryClassName|alias
+	 * @return Repository|IRepository
+	 * @throws RepositoryNotFoundException
+	 */
+	public function getRepository($name)
+	{
+		$name = (string) $name;
+		if (isset($this->aliases[$name]))
+		{
+			$repositoryClass = $this->aliases[$name];
+			return parent::getRepository($repositoryClass);
+		}
+		else
+		{
+			$repositoryClass = NULL;
+			foreach ($this->aliases as $alias => $class)
+			{
+				if (is_subclass_of($class, $name))
+				{
+					$repositoryClass = $class;
+					break;
+				}
+			}
+			$repository = parent::getRepository($repositoryClass ?: $name);
+			$this->aliases[$name] = get_class($repository);
+		}
+
+		return $repository;
 	}
 
 	/**
