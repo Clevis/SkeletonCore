@@ -73,24 +73,27 @@ class PresenterFactory extends Nette\Application\PresenterFactory
 	/**
 	 * Formats presenter name from class name
 	 *
-	 * @param string
-	 * @return string
+	 * @param  string class name
+	 * @return string presenter name
 	 */
 	public function unformatPresenterClass($class)
 	{
 		$namespace = substr($class, 0, strrpos($class, '\\'));
-		if (!in_array($namespace, $this->namespaces))
+		foreach ($this->namespaces as $ns)
 		{
-			return parent::unformatPresenterClass($class);
+			if (strncmp($namespace, $ns, strlen($ns)) === 0)
+			{
+				$presenter = str_replace('\\', ':', substr($class, strlen($ns) + 1, -9));
+				if (empty($this->presenters[$presenter]))
+				{
+					$this->presenters[$presenter] = $class;
+				}
+				return $presenter;
+			}
 		}
 
-		$presenter = str_replace('\\', ':', substr($class, strlen($namespace) + 1, -9));
-		if (empty($this->presenters[$presenter]))
-		{
-			$this->presenters[$presenter] = $class;
-		}
-
-		return $presenter;
+		// fallback
+		return parent::unformatPresenterClass($class);
 	}
 
 }
