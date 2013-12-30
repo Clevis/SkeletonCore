@@ -72,9 +72,9 @@ class TemplateFactory extends Nette\Object
 
 			if ($presenter) {
 				$template->user = $presenter->getUser();
-				$template->netteHttpResponse = $presenter->getContext()->httpResponse;
-				$template->netteCacheStorage = $presenter->getContext()->cacheStorage;
-				$template->baseUri = $template->baseUrl = rtrim($presenter->getContext()->httpRequest->getUrl()->getBaseUrl(), '/');
+				$template->netteHttpResponse = $presenter->getContext()->getService('httpResponse');
+				$template->netteCacheStorage = $presenter->getContext()->getService('cacheStorage');
+				$template->baseUri = $template->baseUrl = rtrim($presenter->getContext()->getService('httpRequest')->getUrl()->getBaseUrl(), '/');
 				$template->basePath = preg_replace('#https?://[^/]+#A', '', $template->baseUrl);
 
 				if ($presenter->hasFlashSession()) {
