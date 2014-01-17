@@ -25,9 +25,9 @@ class ServiceContainerFactory extends Nette\Object implements Orm\IServiceContai
 
 	/**
 	 * @param DibiConnection
-	 * @param Cache cache for Orm\PerformanceHelper
+	 * @param Cache|NULL cache for Orm\PerformanceHelper or null to disable the cache
 	 */
-	public function __construct(DibiConnection $dibiConnection, Cache $cache)
+	public function __construct(DibiConnection $dibiConnection, Cache $cache = NULL)
 	{
 		$this->dibiConnection = $dibiConnection;
 		$this->cache = $cache;
@@ -44,7 +44,11 @@ class ServiceContainerFactory extends Nette\Object implements Orm\IServiceContai
 		$container->addService('mapperFactory', array($this, 'createMapperFactory'));
 		$container->addService('repositoryHelper', 'Orm\RepositoryHelper');
 		$container->addService('dibi', $this->dibiConnection);
-		$container->addService('performanceHelperCache', $this->cache);
+
+		if ($this->cache !== NULL)
+		{
+			$container->addService('performanceHelperCache', $this->cache);
+		}
 
 		return $container;
 	}
