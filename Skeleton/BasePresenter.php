@@ -26,7 +26,7 @@ abstract class BasePresenter extends Presenter
 			throw new NotImplementedException('Specifying template class is not yet implemented.');
 		}
 
-		return $this->context->getService('templateFactory')->createTemplate(NULL, $this);
+		return $this->context->getService('templateFactory')->createTemplate($this);
 	}
 
 	/**

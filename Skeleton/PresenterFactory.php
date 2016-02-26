@@ -12,20 +12,10 @@ class PresenterFactory extends Nette\Application\PresenterFactory
 {
 
 	/** @var array registered presenter namespaces */
-	private $namespaces;
+	private $namespaces = array();
 
 	/** @var array ($presenter => $class) cached presenter names */
 	private $presenters = array();
-
-
-	/**
-	 * @param  string
-	 */
-	public function __construct($baseDir, Nette\DI\Container $container, $baseNamespace)
-	{
-		parent::__construct($baseDir, $container);
-		$this->namespaces = array($baseNamespace);
-	}
 
 	/**
 	 * Registers presenter namespace from package
